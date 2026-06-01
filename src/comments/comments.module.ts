@@ -8,6 +8,6 @@ import { ThreadsModule } from '../threads/threads.module';
   imports: [forwardRef(() => ThreadsModule)],
   controllers: [CommentsController],
   providers: [CommentsService, CommentsRepository],
-  exports: [CommentsRepository],
+  exports: [CommentsService, CommentsRepository],
 })
 export class CommentsModule {}
