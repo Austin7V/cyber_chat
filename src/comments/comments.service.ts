@@ -1,35 +1,55 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Comment } from './comment.type';
-import { CommentsRepository } from './comments.repository';
-import { ThreadsRepository } from '../threads/threads.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Comment } from './comment.entity';
+import { Thread } from '../threads/thread.entity';
 
 @Injectable()
 export class CommentsService {
   constructor(
-    private readonly commentsRepository: CommentsRepository,
-    private readonly threadsRepository: ThreadsRepository,
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(Thread)
+    private readonly threadRepository: Repository<Thread>,
   ) {}
 
-  createComment(threadId: number, body: string, author: string): Comment {
-    const thread = this.threadsRepository.findById(threadId);
+  async createComment(
+    threadId: string,
+    body: string,
+    author: string,
+  ): Promise<Comment> {
+    const thread = await this.threadRepository.findOne({
+      where: { id: threadId },
+    });
     if (!thread) {
       throw new NotFoundException(`Thread with id ${threadId} not found`);
     }
-    return this.commentsRepository.create(threadId, body, author);
+    const comment = this.commentRepository.create({
+      body,
+      author,
+      thread,
+    });
+    return this.commentRepository.save(comment);
   }
 
-  findCommentById(id: number): Comment {
-    const comment = this.commentsRepository.findById(id);
+  async findCommentById(id: string): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+    });
     if (!comment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
     }
     return comment;
   }
-  markCommentAsDeleted(id: number): Comment {
-    const comment = this.commentsRepository.markAsDeleted(id);
+
+  async markCommentAsDeleted(id: string): Promise<Comment> {
+    const comment = await this.commentRepository.findOne({
+      where: { id },
+    });
     if (!comment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
     }
-    return comment;
+    comment.body = 'deleted';
+    return this.commentRepository.save(comment);
   }
 }

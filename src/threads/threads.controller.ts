@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CommentsService } from '../comments/comments.service';
 
@@ -32,13 +24,13 @@ export class ThreadsController {
   }
 
   @Get(':id')
-  findThreadById(@Param('id', ParseIntPipe) id: number) {
+  findThreadById(@Param('id') id: string) {
     return this.threadsService.findThreadWithComments(id);
   }
 
   @Post(':id/comments')
   createCommentForThread(
-    @Param('id', ParseIntPipe) threadId: number,
+    @Param('id') threadId: string,
     @Body('body') body: string,
     @Body('author') author: string,
   ) {
@@ -46,10 +38,7 @@ export class ThreadsController {
   }
 
   @Delete(':id')
-  deleteThread(@Param('id', ParseIntPipe) id: number) {
-    this.threadsService.deleteThread(id);
-    return {
-      message: `Thread with id ${id} deleted`,
-    };
+  deleteThread(@Param('id') id: string) {
+    return this.threadsService.deleteThread(id);
   }
 }
