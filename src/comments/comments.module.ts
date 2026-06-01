@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
-import { CommentsService } from './comments.service';
+import { Module, forwardRef } from '@nestjs/common';
 import { CommentsController } from './comments.controller';
+import { CommentsService } from './comments.service';
 import { CommentsRepository } from './comments.repository';
+import { ThreadsModule } from '../threads/threads.module';
 
 @Module({
-  providers: [CommentsService, CommentsRepository],
+  imports: [forwardRef(() => ThreadsModule)],
   controllers: [CommentsController],
+  providers: [CommentsService, CommentsRepository],
+  exports: [CommentsRepository],
 })
 export class CommentsModule {}
