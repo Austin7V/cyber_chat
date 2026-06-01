@@ -1,4 +1,12 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { CommentsService } from './comments.service';
 
 @Controller('comments')
@@ -6,12 +14,13 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get(':id')
-  findCommentById(@Param('id') id: string) {
+  findCommentById(@Param('id', ParseUUIDPipe) id: string) {
     return this.commentsService.findCommentById(id);
   }
 
   @Delete(':id')
-  markCommentAsDeleted(@Param('id') id: string) {
-    return this.commentsService.markCommentAsDeleted(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async markCommentAsDeleted(@Param('id', ParseUUIDPipe) id: string) {
+    await this.commentsService.markCommentAsDeleted(id);
   }
 }

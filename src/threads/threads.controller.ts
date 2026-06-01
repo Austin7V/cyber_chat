@@ -3,7 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -35,13 +38,13 @@ export class ThreadsController {
   }
 
   @Get(':id')
-  findThreadById(@Param('id') id: string) {
+  findThreadById(@Param('id', ParseUUIDPipe) id: string) {
     return this.threadsService.findThreadWithComments(id);
   }
 
   @Patch(':id')
   updateThread(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateThreadDto: UpdateThreadDto,
   ) {
     return this.threadsService.updateThread(id, updateThreadDto);
@@ -49,7 +52,7 @@ export class ThreadsController {
 
   @Post(':id/comments')
   createCommentForThread(
-    @Param('id') threadId: string,
+    @Param('id', ParseUUIDPipe) threadId: string,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     return this.commentsService.createComment(
@@ -60,7 +63,8 @@ export class ThreadsController {
   }
 
   @Delete(':id')
-  deleteThread(@Param('id') id: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteThread(@Param('id', ParseUUIDPipe) id: string) {
     return this.threadsService.deleteThread(id);
   }
 }
