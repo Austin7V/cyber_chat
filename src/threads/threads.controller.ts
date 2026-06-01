@@ -39,6 +39,14 @@ export class ThreadsController {
     return this.threadsService.findThreadWithComments(id);
   }
 
+  @Patch(':id')
+  updateThread(
+    @Param('id') id: string,
+    @Body() updateThreadDto: UpdateThreadDto,
+  ) {
+    return this.threadsService.updateThread(id, updateThreadDto);
+  }
+
   @Post(':id/comments')
   createCommentForThread(
     @Param('id') threadId: string,
@@ -49,14 +57,6 @@ export class ThreadsController {
       createCommentDto.body,
       createCommentDto.author,
     );
-  }
-
-  @Patch(':id')
-  updateThread(
-    @Param('id') id: string,
-    @Body() updateThreadDto: UpdateThreadDto,
-  ) {
-    return this.threadsService.updateThread(id, updateThreadDto);
   }
 
   @Delete(':id')
