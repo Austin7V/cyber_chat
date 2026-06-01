@@ -3,5 +3,5 @@ export type Comment = {
   threadId: number;
   author: string;
   body: string;
-  createdAT: Date;
+  createdAt: Date;
 };

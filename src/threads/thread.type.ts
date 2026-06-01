@@ -3,5 +3,5 @@ export type Thread = {
   title: string;
   author: string;
   body: string;
-  createdAT: Date;
+  createdAt: Date;
 };
