@@ -1,6 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ThreadsService } from './threads.service';
 import { CommentsService } from '../comments/comments.service';
+import { CreateThreadDto } from './dto/create-thread.dto';
+import { UpdateThreadDto } from './dto/update-thread.dto';
+import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 
 @Controller('threads')
 export class ThreadsController {
@@ -10,12 +21,12 @@ export class ThreadsController {
   ) {}
 
   @Post()
-  createThread(
-    @Body('title') title: string,
-    @Body('body') body: string,
-    @Body('author') author: string,
-  ) {
-    return this.threadsService.createThread(title, body, author);
+  createThread(@Body() createThreadDto: CreateThreadDto) {
+    return this.threadsService.createThread(
+      createThreadDto.title,
+      createThreadDto.body,
+      createThreadDto.author,
+    );
   }
 
   @Get()
@@ -31,10 +42,21 @@ export class ThreadsController {
   @Post(':id/comments')
   createCommentForThread(
     @Param('id') threadId: string,
-    @Body('body') body: string,
-    @Body('author') author: string,
+    @Body() createCommentDto: CreateCommentDto,
   ) {
-    return this.commentsService.createComment(threadId, body, author);
+    return this.commentsService.createComment(
+      threadId,
+      createCommentDto.body,
+      createCommentDto.author,
+    );
+  }
+
+  @Patch(':id')
+  updateThread(
+    @Param('id') id: string,
+    @Body() updateThreadDto: UpdateThreadDto,
+  ) {
+    return this.threadsService.updateThread(id, updateThreadDto);
   }
 
   @Delete(':id')

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Thread } from './thread.entity';
 import { Comment } from '../comments/comment.entity';
-
 @Injectable()
 export class ThreadsService {
   constructor(
@@ -42,6 +41,23 @@ export class ThreadsService {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
     return thread;
+  }
+
+  async updateThread(
+    id: string,
+    updateData: Partial<Pick<Thread, 'title' | 'body' | 'author'>>,
+  ): Promise<Thread> {
+    const thread = await this.threadRepository.findOne({
+      where: { id },
+    });
+
+    if (!thread) {
+      throw new NotFoundException(`Thread with id ${id} not found`);
+    }
+
+    Object.assign(thread, updateData);
+
+    return this.threadRepository.save(thread);
   }
 
   async deleteThread(id: string): Promise<void> {
