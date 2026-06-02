@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ThreadsService } from './threads.service';
@@ -20,6 +21,13 @@ import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+type RequestWithUser = Request & {
+  user: {
+    id: string;
+    username: string;
+  };
+};
+
 @UseGuards(JwtAuthGuard)
 @Controller('threads')
 export class ThreadsController {
@@ -29,11 +37,14 @@ export class ThreadsController {
   ) {}
 
   @Post()
-  createThread(@Body() createThreadDto: CreateThreadDto) {
+  createThread(
+    @Body() createThreadDto: CreateThreadDto,
+    @Req() request: RequestWithUser,
+  ) {
     return this.threadsService.createThread(
       createThreadDto.title,
       createThreadDto.body,
-      createThreadDto.author,
+      request.user.username,
     );
   }
 
@@ -51,25 +62,34 @@ export class ThreadsController {
   updateThread(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateThreadDto: UpdateThreadDto,
+    @Req() request: RequestWithUser,
   ) {
-    return this.threadsService.updateThread(id, updateThreadDto);
+    return this.threadsService.updateThread(
+      id,
+      updateThreadDto,
+      request.user.username,
+    );
   }
 
   @Post(':id/comments')
   createCommentForThread(
     @Param('id', ParseUUIDPipe) threadId: string,
     @Body() createCommentDto: CreateCommentDto,
+    @Req() request: RequestWithUser,
   ) {
     return this.commentsService.createComment(
       threadId,
       createCommentDto.body,
-      createCommentDto.author,
+      request.user.username,
     );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteThread(@Param('id', ParseUUIDPipe) id: string) {
-    return this.threadsService.deleteThread(id);
+  deleteThread(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.threadsService.deleteThread(id, request.user.username);
   }
 }

@@ -6,10 +6,19 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Request } from 'express';
+
+type RequestWithUser = Request & {
+  user: {
+    id: string;
+    username: string;
+  };
+};
 
 @UseGuards(JwtAuthGuard)
 @Controller('comments')
@@ -23,7 +32,10 @@ export class CommentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async markCommentAsDeleted(@Param('id', ParseUUIDPipe) id: string) {
-    await this.commentsService.markCommentAsDeleted(id);
+  async markCommentAsDeleted(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() request: RequestWithUser,
+  ) {
+    await this.commentsService.markCommentAsDeleted(id, request.user.username);
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
@@ -76,6 +80,7 @@ export class ThreadsService {
   async updateThread(
     id: string,
     updateThreadDto: UpdateThreadDto,
+    username: string,
   ): Promise<ThreadResponseDto> {
     const thread = await this.threadRepository.findOne({
       where: { id },
@@ -85,6 +90,10 @@ export class ThreadsService {
       throw new NotFoundException(`Thread with id ${id} not found`);
     }
 
+    if (thread.author !== username) {
+      throw new ForbiddenException('You can only update your own threads');
+    }
+
     Object.assign(thread, updateThreadDto);
 
     const savedThread = await this.threadRepository.save(thread);
@@ -92,13 +101,17 @@ export class ThreadsService {
     return plainToInstance(ThreadResponseDto, savedThread);
   }
 
-  async deleteThread(id: string): Promise<void> {
+  async deleteThread(id: string, username: string): Promise<void> {
     const thread = await this.threadRepository.findOne({
       where: { id },
     });
 
     if (!thread) {
       throw new NotFoundException(`Thread with id ${id} not found`);
+    }
+
+    if (thread.author !== username) {
+      throw new ForbiddenException('You can only delete your own threads');
     }
 
     await this.commentRepository.delete({

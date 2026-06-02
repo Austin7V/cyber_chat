@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
@@ -52,13 +56,20 @@ export class CommentsService {
     return plainToInstance(CommentResponseDto, comment);
   }
 
-  async markCommentAsDeleted(id: string): Promise<CommentResponseDto> {
+  async markCommentAsDeleted(
+    id: string,
+    username: string,
+  ): Promise<CommentResponseDto> {
     const comment = await this.commentRepository.findOne({
       where: { id },
     });
 
     if (!comment) {
       throw new NotFoundException(`Comment with id ${id} not found`);
+    }
+
+    if (comment.author !== username) {
+      throw new ForbiddenException('You can only delete your own comments');
     }
 
     comment.body = 'deleted';
