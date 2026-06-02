@@ -21,6 +21,7 @@ import { CreateCommentDto } from '../comments/dto/create-comment.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
+  ApiQuery,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -38,7 +39,7 @@ type RequestWithUser = Request & {
   };
 };
 
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('threads')
 export class ThreadsController {
@@ -65,6 +66,20 @@ export class ThreadsController {
 
   @Get()
   @ApiOperation({ summary: 'List all threads with pagination' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number. Starts at 1.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 5,
+    description: 'Number of threads per page. Maximum is 100.',
+  })
   @ApiOkResponse({ description: 'Returns paginated threads.' })
   @ApiBadRequestResponse({ description: 'Invalid pagination query.' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT token.' })

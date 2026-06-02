@@ -29,7 +29,7 @@ type RequestWithUser = Request & {
   };
 };
 
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('comments')
 export class CommentsController {

@@ -59,7 +59,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get the currently authenticated user' })
   @ApiUnauthorizedResponse({
     description: 'Missing or invalid JWT token.',
